@@ -63,8 +63,7 @@ int main()
   
   alSourcei(audio_source, AL_BUFFER, beepbuffer);
   alSourcePlay(audio_source);
-  int a;
-  std::cin >> a;
+  std::cin.get();
   alSourceStop(audio_source);
   
   alDeleteBuffers(1, &beepbuffer);

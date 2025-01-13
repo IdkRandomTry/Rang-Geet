@@ -19,7 +19,7 @@ blacklist_patterns = {
 };
 
 load_paths_custom = {
-	{ "./header/" },
+	{ "./src/" },
   { "./", .recursive = false },
 };
 

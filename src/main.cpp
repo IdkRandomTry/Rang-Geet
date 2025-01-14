@@ -1,14 +1,16 @@
+#include "raylib.h"
+
+#include "common.h"
 #include "img_proccessing.h"
 
 // Unity Build
 #include "audio.cpp"
-#include "raylib.h"
 
 int main()
 {
   CustomImage img;
   img.load("image/Pearls-Group-blue.png");
-
+  
   CustomImage reduced_img = img.reduce_image(16);
   reduced_img.save("image/reduced_blue.png");
   

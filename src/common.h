@@ -8,8 +8,8 @@ enum class Instrument {
 struct Note {
   float frequency;
   Instrument instrument;
-
-  Note(float f=0, Instrument i = Instrument::Sine)
+  
+  Note(float f = 0, Instrument i = Instrument::Sine)
   {
     frequency = f;
     instrument = i;

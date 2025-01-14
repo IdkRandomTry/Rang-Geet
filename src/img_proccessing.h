@@ -15,7 +15,7 @@ struct Pixel
     r = r_inp;
     g = g_inp;
     b = b_inp;
-
+    
     // Convert RGB to HSV and set them
     float r_ = r / 255.0f;
     float g_ = g / 255.0f;
@@ -23,7 +23,7 @@ struct Pixel
     float cmax = std::max(r_, std::max(g_, b_));
     float cmin = std::min(r_, std::min(g_, b_));
     float delta = cmax - cmin;
-
+    
     if (delta == 0)
       hue = 0;
     else if (cmax == r_)
@@ -34,15 +34,15 @@ struct Pixel
       hue = (int)(60 * (((r_ - g_) / delta) + 4.0f));
     if (hue < 0)
       hue += 360;
-
+    
     if (cmax == 0)
       saturation = 0;
     else
       saturation = (int)(delta / cmax * 100);
-
+    
     brightness = (int)(cmax * 100);
   }
-
+  
   void info()
   {
     std::cout << "RGB: (" << r << ", " << g << ", " << b << ")" << std::endl;
@@ -104,7 +104,7 @@ struct CustomImage
     
     stbi_image_free(data);
   }
-
+  
   void save(const char* filename)
   {
     unsigned char* data = new unsigned char[width * height * 3];
@@ -121,7 +121,7 @@ struct CustomImage
     stbi_write_png(filename, width, height, 3, data, width * 3);
     delete[] data;
   }
-
+  
   CustomImage reduce_image(int n)
   {
     CustomImage reduced_image(1, n);
@@ -151,3 +151,21 @@ struct CustomImage
   
 };
 
+
+
+Note pix_to_note(Pixel p)
+{
+  float f = 240 + p.hue/360.0f * (480-240);
+  return Note(f, Instrument::Sine);
+}
+
+Note* img_to_melody(CustomImage img)
+{
+  Note* melody = new Note[img.width*img.height];
+  for (int i = 0; i < img.width*img.height; i++)
+  {
+    Pixel p = img.get_pixel(i%img.width, i/img.width);
+    melody[i] = pix_to_note(p);
+  }
+  return melody;
+}

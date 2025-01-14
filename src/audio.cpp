@@ -8,7 +8,12 @@ typedef struct AudioContext {
   ALCcontext* ctx;
   ALuint source;
   
-  ALuint notes_played[8];
+  ALuint note_buffers[8];
+  
+  Note* notes;
+  float time_accumulator;
+  int current_note;
+  bool started;
 } AudioContext;
 
 static AudioContext audio;
@@ -28,15 +33,16 @@ static void generate_sine(int k, float freq) {
   short* samples = new short[buf_size];
   for (int i = 0; i < buf_size; i++) {
     samples[i] = 32760 * sin((2.f * my_pi * freq) / sample_rate * i);
-    samples[i] = sgn(samples[i]) * 32760;
   }
-  alBufferData(audio.notes_played[k], AL_FORMAT_MONO16, samples, buf_size, sample_rate);
+  alBufferData(audio.note_buffers[k], AL_FORMAT_MONO16, samples, buf_size, sample_rate);
   
   delete[] samples;
 }
 
 
-static void init_audio() {
+static void init_audio(Note* notes) {
+  
+  audio.notes = notes;
   audio.device = alcOpenDevice(nullptr);
   if (!audio.device) {
     std::cout << "Failed to create OpenAL Device" << std::endl;
@@ -60,20 +66,19 @@ static void init_audio() {
   alSource3f(audio.source, AL_VELOCITY, 0, 0, 0);
   alSourcei(audio.source,  AL_LOOPING,  AL_FALSE);
   
-  alGenBuffers((ALuint) 8, audio.notes_played);
+  alGenBuffers((ALuint) 8, audio.note_buffers);
   
-  generate_sine(0, 240);
-  generate_sine(1, 270);
-  generate_sine(2, 300);
-  generate_sine(3, 320);
-  generate_sine(4, 360);
-  generate_sine(5, 400);
-  generate_sine(6, 450);
-  generate_sine(7, 480);
+  for (int i = 0; i < 8; i++) {
+    generate_sine(i, notes[i].frequency);
+  }
+  
+  audio.time_accumulator = 0;
+  audio.current_note = 0;
+  audio.started = false;
 }
 
 static void play_note(int i) {
-  alSourcei(audio.source, AL_BUFFER, audio.notes_played[i]);
+  alSourcei(audio.source, AL_BUFFER, audio.note_buffers[i]);
   alSourcePlay(audio.source);
 }
 
@@ -82,8 +87,27 @@ static void stop_note() {
 }
 
 
+static void update_audio() {
+  if (!audio.started) {
+    play_note(0);
+    audio.started = true;
+  }
+  float dt = GetFrameTime();
+  audio.time_accumulator += dt;
+  if (audio.time_accumulator >= 1) {
+    audio.time_accumulator -= 1;
+    audio.current_note += 1;
+    audio.current_note %= 8; // NOTE(voxel): Hardcoded 8
+    stop_note();
+    play_note(audio.current_note);
+    printf("Playing note %d (%3.3f)\n", audio.current_note, audio.notes[audio.current_note].frequency);
+    fflush(stdout);
+  }
+}
+
+
 static void deinit_audio() {
-  alDeleteBuffers(8, audio.notes_played);
+  alDeleteBuffers(8, audio.note_buffers);
   alDeleteSources(1, &audio.source);
   alcDestroyContext(audio.ctx);
   alcCloseDevice(audio.device);

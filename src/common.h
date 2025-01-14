@@ -9,3 +9,4 @@ struct Note {
   float frequency;
   Instrument instrument;
 };
+

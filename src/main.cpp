@@ -6,12 +6,11 @@
 
 int main()
 {
-  LoadedImage img;
-  img.load("image/garbage man dilbert.jpg");
-  
-  Pixel p = img.get_pixel(0, 0);
-  std::cout << "Pixel (0,0): Hue = " << p.hue << ", Saturation = " << p.saturation << ", Brightness = " << p.brightness << "%" << std::endl;
-  
+  CustomImage img;
+  img.load("image/Pearls-Group-blue.png");
+
+  CustomImage reduced_img = img.reduce_image(16);
+  reduced_img.save("image/reduced_blue.png");
   
   InitWindow(1080, 720, "Music");
   SetTargetFPS(60);

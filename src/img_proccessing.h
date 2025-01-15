@@ -181,9 +181,15 @@ struct CustomImage
 
 
 
-Note pix_to_note(Pixel p)
+Note pix_to_note_lin(Pixel p)
 {
   float f = 120 + p.hue/360.0f * (480-120);
+  return Note(f, Instrument::Sine);
+}
+
+Note pix_to_note_exp(Pixel p)
+{
+  float f = 120.0 + (std::pow(2, (p.hue/360.0f)) - 1) * (480.0 - 120.0);
   return Note(f, Instrument::Sine);
 }
 
@@ -193,7 +199,7 @@ Note* img_to_melody(CustomImage img)
   for (int i = 0; i < img.width*img.height; i++)
   {
     Pixel p = img.get_pixel(i%img.width, i/img.width);
-    melody[i] = pix_to_note(p);
+    melody[i] = pix_to_note_exp(p);
   }
   return melody;
 }

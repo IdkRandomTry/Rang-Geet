@@ -88,14 +88,15 @@ static void stop_note() {
 
 
 static void update_audio() {
+  float seconds = 0.25;
   if (!audio.started) {
     play_note(0);
     audio.started = true;
   }
   float dt = GetFrameTime();
   audio.time_accumulator += dt;
-  if (audio.time_accumulator >= 1) {
-    audio.time_accumulator -= 1;
+  if (audio.time_accumulator >= seconds) {
+    audio.time_accumulator -= seconds;
     audio.current_note += 1;
     audio.current_note %= 8; // NOTE(voxel): Hardcoded 8
     stop_note();

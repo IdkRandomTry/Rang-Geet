@@ -129,6 +129,35 @@ struct CustomImage
     int reduced_height = height/n;
     for (int i = 0; i < n; i++)
     {
+      int h = 0, s = 0, b = 0;
+      for (int y = 0; y < reduced_height; y++)
+      {
+        for (int x = 0; x < width; x++)
+        {
+          Pixel p = get_pixel(x, i * reduced_height + y);
+          h += p.hue;
+          s += p.saturation;
+          b += p.brightness;
+        }
+      }
+      h /= (width * reduced_height);
+      s /= (width * reduced_height);
+      b /= (width * reduced_height);
+      Pixel p;
+      p.hue = h;
+      p.saturation = s;
+      p.brightness = b;
+      reduced_image.set_pixel(0, i, p);
+    }
+    return reduced_image;
+  }
+  CustomImage reduce_image_rgbavg(int n)
+  {
+    CustomImage reduced_image(1, n);
+    reduced_image.pixels = new Pixel[n];
+    int reduced_height = height / n;
+    for (int i = 0; i < n; i++)
+    {
       int r = 0, g = 0, b = 0;
       for (int y = 0; y < reduced_height; y++)
       {
@@ -148,14 +177,13 @@ struct CustomImage
     }
     return reduced_image;
   }
-  
 };
 
 
 
 Note pix_to_note(Pixel p)
 {
-  float f = 240 + p.hue/360.0f * (480-240);
+  float f = 120 + p.hue/360.0f * (480-120);
   return Note(f, Instrument::Sine);
 }
 

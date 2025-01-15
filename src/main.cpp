@@ -9,10 +9,10 @@
 int main()
 {
   CustomImage img;
-  img.load("image/Pearls-Group-blue.png");
-  
-  CustomImage reduced_img = img.reduce_image(8);
-  reduced_img.save("image/reduced_blue.png");
+  img.load("image/mona lisa.JPG");
+
+  CustomImage reduced_img = img.reduce_image_rgbavg(8);
+  reduced_img.save("image/reduced.jpg");
   std::cout << "Image reduced: (" << reduced_img.width << ", " << reduced_img.height << ")" << std::endl;
   
   Note* melody = img_to_melody(reduced_img);
@@ -20,9 +20,7 @@ int main()
   for (int i = 0; i < reduced_img.width*reduced_img.height; i++)
   {
     std::cout << melody[i].frequency << " ";
-  }
-  
-  
+  }  
   
   InitWindow(1080, 720, "Music");
   SetTargetFPS(60);

@@ -64,7 +64,7 @@ struct CustomImage
   
   ~CustomImage()
   {
-    delete[] pixels; // Deallocate memory
+    //delete[] pixels; // Deallocate memory
   }
   
   void set_pixel(int x, int y, Pixel p)
@@ -124,6 +124,7 @@ struct CustomImage
   
   CustomImage reduce_image(int n)
   {
+    
     CustomImage reduced_image(1, n);
     reduced_image.pixels = new Pixel[n];
     int reduced_height = height/n;
@@ -151,6 +152,7 @@ struct CustomImage
     }
     return reduced_image;
   }
+  
   CustomImage reduce_image_rgbavg(int n)
   {
     CustomImage reduced_image(1, n);

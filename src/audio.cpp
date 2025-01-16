@@ -24,15 +24,33 @@ template <typename T> int sgn(T val) {
   return (T(0) < val) - (val < T(0));
 }
 
+static float simple_envelope(float pct) {
+  // Attack
+  if (pct >= 0.0f && pct <= 0.15f)
+    return pct * (1.0 / 0.15); // Linear rise to 1
+  // Decay
+  else if (pct > 0.15f && pct <= 0.4f)
+    return 1.0f - ((pct - 0.15) * ((1.0f-0.85f) / (0.4f-0.15f))); // Linear drop to 0.85
+  // Sustain
+  else if (pct > 0.4f && pct <= 0.85f)
+    return 0.85f; // Sustain 0.85
+  // Release
+  else if (pct > 0.85f && pct <= 1.0f)
+    return 0.85f - ((pct - 0.85) * (0.85f / (1.0f-0.85f)));
+  std::cout << pct << " is out of bounds [0, 1]" << std::endl;
+  return 1.0f;
+}
+
 static void generate_sine(int k, float freq) {
-  int seconds = 1;
+  float seconds = 1;
   unsigned sample_rate = 44100;
   double my_pi = 3.14159;
   size_t buf_size = seconds * sample_rate;
   
   short* samples = new short[buf_size];
   for (int i = 0; i < buf_size; i++) {
-    samples[i] = 32760 * sin((2.f * my_pi * freq) / sample_rate * i);
+    samples[i] = 32760 *
+      sin((2.f * my_pi * freq) / sample_rate * i);
   }
   alBufferData(audio.note_buffers[k], AL_FORMAT_MONO16, samples, buf_size, sample_rate);
   
@@ -87,13 +105,12 @@ static void stop_note() {
 }
 
 
-static void update_audio() {
+static void update_audio(float dt) {
   float seconds = 0.25;
   if (!audio.started) {
     play_note(0);
     audio.started = true;
   }
-  float dt = GetFrameTime();
   audio.time_accumulator += dt;
   if (audio.time_accumulator >= seconds) {
     audio.time_accumulator -= seconds;

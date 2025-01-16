@@ -8,7 +8,7 @@ typedef struct AudioContext {
   ALCcontext* ctx;
   ALuint source;
   
-  ALuint note_buffers[8];
+  ALuint note_buffers[16];
   
   Note* notes;
   float time_accumulator;
@@ -49,8 +49,10 @@ static void generate_sine(int k, float freq) {
   
   short* samples = new short[buf_size];
   for (int i = 0; i < buf_size; i++) {
-    samples[i] = 32760 *
-      sin((2.f * my_pi * freq) / sample_rate * i);
+    //samples[i] = 32760 *
+    //sin((2.f * my_pi * freq) / sample_rate * i);
+    float fade = 1.0f - float (i)/buf_size;
+    samples[i] = fade*32760 * sin((2.f * my_pi * freq) / sample_rate * i);
   }
   alBufferData(audio.note_buffers[k], AL_FORMAT_MONO16, samples, buf_size, sample_rate);
   
@@ -84,9 +86,9 @@ static void init_audio(Note* notes) {
   alSource3f(audio.source, AL_VELOCITY, 0, 0, 0);
   alSourcei(audio.source,  AL_LOOPING,  AL_FALSE);
   
-  alGenBuffers((ALuint) 8, audio.note_buffers);
+  alGenBuffers((ALuint) 16, audio.note_buffers);
   
-  for (int i = 0; i < 8; i++) {
+  for (int i = 0; i < 16; i++) {
     generate_sine(i, notes[i].frequency);
   }
   
@@ -105,8 +107,9 @@ static void stop_note() {
 }
 
 
-static void update_audio(float dt) {
-  float seconds = 0.25;
+
+static void update_audio() {
+  float seconds = 0.125;
   if (!audio.started) {
     play_note(0);
     audio.started = true;
@@ -115,7 +118,7 @@ static void update_audio(float dt) {
   if (audio.time_accumulator >= seconds) {
     audio.time_accumulator -= seconds;
     audio.current_note += 1;
-    audio.current_note %= 8; // NOTE(voxel): Hardcoded 8
+    audio.current_note %= 16; // NOTE(voxel): Hardcoded 8
     stop_note();
     play_note(audio.current_note);
     printf("Playing note %d (%3.3f)\n", audio.current_note, audio.notes[audio.current_note].frequency);
@@ -125,7 +128,7 @@ static void update_audio(float dt) {
 
 
 static void deinit_audio() {
-  alDeleteBuffers(8, audio.note_buffers);
+  alDeleteBuffers(16, audio.note_buffers);
   alDeleteSources(1, &audio.source);
   alcDestroyContext(audio.ctx);
   alcCloseDevice(audio.device);

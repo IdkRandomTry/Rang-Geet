@@ -97,6 +97,15 @@ static void init_audio(Note* notes) {
   audio.started = false;
 }
 
+static void refresh_melody(Note* notes) {
+  for (int i = 0; i < pixel_count; i++) {
+    generate_sine(i, notes[i].frequency);
+  }
+  audio.time_accumulator = 0;
+  audio.current_note = 0;
+  audio.started = false;
+}
+
 static void play_note(int i) {
   alSourcei(audio.source, AL_BUFFER, audio.note_buffers[i]);
   alSourcePlay(audio.source);

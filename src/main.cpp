@@ -1,7 +1,7 @@
 #include "raylib.h"
 
-static float note_time = 0.25f;
-static int pixel_count = 8;
+static float note_time   = 0.25f;
+static int   pixel_count = 8;
 
 #include "common.h"
 #include "img_proccessing.h"
@@ -14,6 +14,10 @@ static int pixel_count = 8;
 
 #define WINDOW_WIDTH  1080
 #define WINDOW_HEIGHT 720
+
+std::string OpenFileDialog(const char* filter);
+
+
 int main()
 {
   SetConfigFlags(FLAG_WINDOW_RESIZABLE);
@@ -66,6 +70,16 @@ int main()
     // TODO(voxel): Proper sizing of images
     if (GuiButton((Rectangle) { 5, 5, ((float)(window_width/2.0f)-10),  ((float)(window_height)-10)}, "###Hello")) {
       // NOTE(voxel): Open different image
+      std::string new_file = OpenFileDialog("*.JPG\0");
+      if (new_file != "") {
+        img.load(new_file.c_str());
+        reduced_img = img.reduce_image_rgbavg(pixel_count);
+        img_to_show = LoadTexture(new_file.c_str());
+        delete[] melody;
+        melody = img_to_melody(reduced_img);
+        refresh_melody(melody);
+        tracker = 0;
+      }
     }
     DrawTexturePro(img_to_show, Rectangle{0, 0, (float)img_to_show.width, (float)img_to_show.height},
                    Rectangle{10, 10, ((float)(window_width/2.0f)-20),  ((float)(window_height)-20)},

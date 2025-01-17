@@ -69,7 +69,6 @@ int main()
     
     // TODO(voxel): Proper sizing of images
     if (GuiButton((Rectangle) { 5, 5, ((float)(window_width/2.0f)-10),  ((float)(window_height)-10)}, "###Hello")) {
-      // NOTE(voxel): Open different image
       std::string new_file = OpenFileDialog("*.JPG\0");
       if (new_file != "") {
         img.load(new_file.c_str());

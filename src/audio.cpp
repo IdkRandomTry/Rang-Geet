@@ -86,9 +86,9 @@ static void init_audio(Note* notes) {
   alSource3f(audio.source, AL_VELOCITY, 0, 0, 0);
   alSourcei(audio.source,  AL_LOOPING,  AL_FALSE);
   
-  alGenBuffers((ALuint) 16, audio.note_buffers);
+  alGenBuffers((ALuint) pixel_count, audio.note_buffers);
   
-  for (int i = 0; i < 16; i++) {
+  for (int i = 0; i < pixel_count; i++) {
     generate_sine(i, notes[i].frequency);
   }
   
@@ -108,17 +108,16 @@ static void stop_note() {
 
 
 
-static void update_audio() {
-  float seconds = 0.125;
+static void update_audio(float dt) {
   if (!audio.started) {
     play_note(0);
     audio.started = true;
   }
   audio.time_accumulator += dt;
-  if (audio.time_accumulator >= seconds) {
-    audio.time_accumulator -= seconds;
+  if (audio.time_accumulator >= note_time) {
+    audio.time_accumulator -= note_time;
     audio.current_note += 1;
-    audio.current_note %= 16; // NOTE(voxel): Hardcoded 8
+    audio.current_note %= pixel_count;
     stop_note();
     play_note(audio.current_note);
     printf("Playing note %d (%3.3f)\n", audio.current_note, audio.notes[audio.current_note].frequency);

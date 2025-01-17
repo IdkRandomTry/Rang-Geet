@@ -1,5 +1,8 @@
 #include "raylib.h"
 
+static float note_time = 0.125f;
+static int pixel_count = 16;
+
 #include "common.h"
 #include "img_proccessing.h"
 
@@ -25,7 +28,7 @@ int main()
   img.load("image/mona lisa.JPG");
   Texture2D img_to_show = LoadTexture("image/mona lisa.JPG");
   
-  CustomImage reduced_img = img.reduce_image_rgbavg(8);
+  CustomImage reduced_img = img.reduce_image_rgbavg(pixel_count);
   reduced_img.save("image/reduced.jpg");
   std::cout << "Image reduced: (" << reduced_img.width << ", " << reduced_img.height << ")" << std::endl;
   
@@ -47,11 +50,11 @@ int main()
     BeginDrawing();
     ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
     
-    float retimed_dt = GetFrameTime() * 0.5;
+    float retimed_dt = GetFrameTime();
     tracker += retimed_dt;
-    if (tracker > 0.25f * 8) tracker -= 8 * 0.25f;
+    if (tracker > note_time * pixel_count) tracker -= pixel_count * note_time;
     
-    float track_pct = tracker * 1.0 / (8 * 0.25f);
+    float track_pct = tracker * 1.0 / (pixel_count * note_time);
     
     if (IsWindowResized()) {
       window_width  = GetRenderWidth();
@@ -70,8 +73,8 @@ int main()
     DrawRectangle((window_width/2.0)+5, 5, ((float)(window_width/2.0f)-10),  ((float)(window_height)-10), ColorBrightness(BLUE, 0.3));
     DrawRectangle((window_width/2.0)+10, 10, ((float)(window_width/2.0f)-20),  ((float)(window_height)-20), ColorBrightness(BLUE, 0.7));
     
-    for (int i = 0; i < 9; i++) {
-      DrawRectangle((window_width/2.0)+10, 50 + (i/(float)8) * (window_height - 100), (window_width/2.0)-20, 3, LIGHTGRAY);
+    for (int i = 0; i <= pixel_count; i++) {
+      DrawRectangle((window_width/2.0)+10, 50 + (i/(float)pixel_count) * (window_height - 100), (window_width/2.0)-20, 3, LIGHTGRAY);
     }
     DrawRectangle((window_width/2.0)+10, 50 + track_pct * (window_height - 100), (window_width/2.0)-20, 5, RED);
     

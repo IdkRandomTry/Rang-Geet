@@ -43,7 +43,13 @@ int main()
     std::cout << melody[i].frequency << " ";
   }
   
-  
+  float img_aspect = (float)img.width / (float)img.height;
+  Rectangle image_fit = Rectangle{
+    (((window_width/2.0f)-20.0f) - ((window_height-20.0f) * img_aspect)) / 2.0f,
+    10,
+    (window_height-20.0f) * img_aspect,
+    window_height-20.0f,
+  };
   
   // Audio Initialization
   init_audio(melody);
@@ -65,8 +71,6 @@ int main()
       window_height = GetRenderHeight();
     }
     
-    
-    
     // TODO(voxel): Proper sizing of images
     if (GuiButton((Rectangle) { 5, 5, ((float)(window_width/2.0f)-10),  ((float)(window_height)-10)}, "###Hello")) {
       std::string new_file = OpenFileDialog("*.JPG\0");
@@ -78,29 +82,39 @@ int main()
         melody = img_to_melody(reduced_img);
         refresh_melody(melody);
         tracker = 0;
+        
+        img_aspect = (float)img.width / (float)img.height;
+        image_fit = Rectangle{
+          (((window_width/2.0f)-20.0f) - ((window_height-20.0f) * img_aspect)) / 2.0f,
+          10,
+          (window_height-20.0f) * img_aspect,
+          window_height-20.0f,
+        };
       }
     }
+    
     DrawTexturePro(img_to_show, Rectangle{0, 0, (float)img_to_show.width, (float)img_to_show.height},
-                   Rectangle{10, 10, ((float)(window_width/2.0f)-20),  ((float)(window_height)-20)},
+                   image_fit,
                    Vector2{0, 0}, 0, WHITE);
+    
     DrawRectangle(5*(window_width/10.0)+5, 5, ((float)(5*window_width/10.0f)-10),  ((float)(window_height)-10), ColorBrightness(BLUE, 0.3));
     DrawRectangle(5*(window_width/10.0)+10, 10, ((float)(5*window_width/10.0f)-20),  ((float)(window_height)-20), ColorBrightness(BLUE, 0.7));
     
     for (int i = 0; i <= pixel_count; i++) {
       if (i != pixel_count)
         DrawRectangle(5*(window_width/10.0)+10,
-                      lmap(0, 1, 50, window_height-100, i/(float)pixel_count),
-                      40,
-                      (window_height-100-50)/(float)(pixel_count),
+                      lmap(0, 1, 10, window_height-20, i/(float)pixel_count),
+                      (window_height-10-5)/(float)(pixel_count),
+                      (window_height-10-5)/(float)(pixel_count),
                       Color{(unsigned char)reduced_img.pixels[i].r,
                         (unsigned char)reduced_img.pixels[i].g,
                         (unsigned char)reduced_img.pixels[i].b,
                         255});
-      DrawRectangle(5*(window_width/10.0)+10, lmap(0, 1, 50, window_height-100, i/(float)pixel_count),
+      DrawRectangle(5*(window_width/10.0)+10, lmap(0, 1, 10, window_height-20, i/(float)pixel_count),
                     5*(window_width/10.0)-20, 3, ColorLerp(LIGHTGRAY, BLUE, 0.3f));
       //DrawRectanglePro(Rectangle{lmap()});
     }
-    DrawRectangle(5*(window_width/10.0)+10, lmap(0, 1, 50, window_height-100, track_pct), 5*(window_width/10.0)-20, 5, RED);
+    DrawRectangle(5*(window_width/10.0)+10, lmap(0, 1, 10, window_height-20, track_pct), 5*(window_width/10.0)-20, 5, RED);
     
     
     

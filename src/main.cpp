@@ -1,7 +1,7 @@
 #include "raylib.h"
 
-static float note_time = 0.125f;
-static int pixel_count = 16;
+static float note_time = 0.25f;
+static int pixel_count = 8;
 
 #include "common.h"
 #include "img_proccessing.h"
@@ -74,9 +74,15 @@ int main()
     DrawRectangle((window_width/2.0)+10, 10, ((float)(window_width/2.0f)-20),  ((float)(window_height)-20), ColorBrightness(BLUE, 0.7));
     
     for (int i = 0; i <= pixel_count; i++) {
-      DrawRectangle((window_width/2.0)+10, 50 + (i/(float)pixel_count) * (window_height - 100), (window_width/2.0)-20, 3, LIGHTGRAY);
+      DrawRectangle((window_width/2.0)+10, lmap(0, 1, 50, window_height-100, i/(float)pixel_count),
+                    (window_width/2.0)-20, 3, ColorLerp(LIGHTGRAY, BLUE, 0.3f));
+      //DrawRectanglePro();
     }
-    DrawRectangle((window_width/2.0)+10, 50 + track_pct * (window_height - 100), (window_width/2.0)-20, 5, RED);
+    DrawRectangle((window_width/2.0)+10, lmap(0, 1, 50, window_height-100, track_pct), (window_width/2.0)-20, 5, RED);
+    
+    
+    
+    
     
     update_audio(retimed_dt);
     

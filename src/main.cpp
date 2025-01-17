@@ -1,7 +1,7 @@
 #include "raylib.h"
 
 static float note_time   = 0.25f;
-static int   pixel_count = 8;
+static int   pixel_count = 16;
 
 #include "common.h"
 #include "img_proccessing.h"
@@ -55,12 +55,14 @@ int main()
   init_audio(melody);
   
   float tracker = 0.0f;
+  float time_scale = 1.0f;
+  bool refreshed_melody = false;
   
   while (!WindowShouldClose()) {
     BeginDrawing();
     ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
     
-    float retimed_dt = GetFrameTime();
+    float retimed_dt = GetFrameTime() * time_scale;
     tracker += retimed_dt;
     if (tracker > note_time * pixel_count) tracker -= pixel_count * note_time;
     
@@ -73,15 +75,20 @@ int main()
     
     // TODO(voxel): Proper sizing of images
     if (GuiButton((Rectangle) { 5, 5, ((float)(window_width/2.0f)-10),  ((float)(window_height)-10)}, "###Hello")) {
+      stop_note();
+      time_scale = 0.0f;
       std::string new_file = OpenFileDialog("*.JPG\0");
       if (new_file != "") {
+        delete[] img.pixels;
+        delete[] reduced_img.pixels;
+        
         img.load(new_file.c_str());
         reduced_img = img.reduce_image_rgbavg(pixel_count);
         img_to_show = LoadTexture(new_file.c_str());
+        
         delete[] melody;
         melody = img_to_melody(reduced_img);
-        refresh_melody(melody);
-        tracker = 0;
+        refreshed_melody = true;
         
         img_aspect = (float)img.width / (float)img.height;
         image_fit = Rectangle{
@@ -91,6 +98,15 @@ int main()
           window_height-20.0f,
         };
       }
+    } else {
+      if (refreshed_melody) {
+        tracker = 0;
+        time_scale = 1.0f;
+        stop_note();
+        refresh_melody(melody);
+        refreshed_melody = false;
+      }
+      update_audio(retimed_dt);
     }
     
     DrawTexturePro(img_to_show, Rectangle{0, 0, (float)img_to_show.width, (float)img_to_show.height},
@@ -101,7 +117,7 @@ int main()
     DrawRectangle(5*(window_width/10.0)+10, 10, ((float)(5*window_width/10.0f)-20),  ((float)(window_height)-20), ColorBrightness(BLUE, 0.7));
     
     for (int i = 0; i <= pixel_count; i++) {
-      if (i != pixel_count)
+      if (i != pixel_count) {
         DrawRectangle(5*(window_width/10.0)+10,
                       lmap(0, 1, 10, window_height-20, i/(float)pixel_count),
                       (window_height-10-5)/(float)(pixel_count),
@@ -110,17 +126,31 @@ int main()
                         (unsigned char)reduced_img.pixels[i].g,
                         (unsigned char)reduced_img.pixels[i].b,
                         255});
+      }
+      
       DrawRectangle(5*(window_width/10.0)+10, lmap(0, 1, 10, window_height-20, i/(float)pixel_count),
                     5*(window_width/10.0)-20, 3, ColorLerp(LIGHTGRAY, BLUE, 0.3f));
-      //DrawRectanglePro(Rectangle{lmap()});
+      
+      if (i != pixel_count) {
+        DrawRectanglePro(Rectangle{
+                           lmap(120, 480,
+                                5*(window_width/10.0)+10 + (window_height-10-5)/(float)(pixel_count) + 40,
+                                window_width - 20 - 40, melody[i].frequency),
+                           lmap(0, 1, 10, window_height-20, i/(float)pixel_count) + ((window_height-30)/(pixel_count*2.0f)),
+                           25, 25
+                         }, Vector2{10,10}, 45, BLUE);
+        DrawRectanglePro(Rectangle{
+                           lmap(120, 480,
+                                5*(window_width/10.0)+10 + (window_height-10-5)/(float)(pixel_count) + 40,
+                                window_width - 20 - 40, melody[i].frequency),
+                           lmap(0, 1, 10, window_height-20, i/(float)pixel_count) + ((window_height-30)/(pixel_count*2.0f)),
+                           20, 20
+                         }, Vector2{10,10}, 45, ColorLerp(LIGHTGRAY, BLUE, 0.5f));
+      }
     }
+    
     DrawRectangle(5*(window_width/10.0)+10, lmap(0, 1, 10, window_height-20, track_pct), 5*(window_width/10.0)-20, 5, RED);
     
-    
-    
-    
-    
-    update_audio(retimed_dt);
     
     EndDrawing();
   }

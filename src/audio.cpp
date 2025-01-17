@@ -102,6 +102,7 @@ static void refresh_melody(Note* notes) {
   for (int i = 0; i < pixel_count; i++) {
     generate_sine(i, notes[i].frequency);
   }
+  audio.notes = notes;
   audio.time_accumulator = 0;
   audio.current_note = 0;
   audio.started = false;

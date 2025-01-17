@@ -8,7 +8,7 @@ typedef struct AudioContext {
   ALCcontext* ctx;
   ALuint source;
   
-  ALuint note_buffers[16];
+  ALuint* note_buffers;
   
   Note* notes;
   float time_accumulator;
@@ -86,6 +86,7 @@ static void init_audio(Note* notes) {
   alSource3f(audio.source, AL_VELOCITY, 0, 0, 0);
   alSourcei(audio.source,  AL_LOOPING,  AL_FALSE);
   
+  audio.note_buffers = new ALuint[pixel_count];
   alGenBuffers((ALuint) pixel_count, audio.note_buffers);
   
   for (int i = 0; i < pixel_count; i++) {
@@ -136,7 +137,8 @@ static void update_audio(float dt) {
 
 
 static void deinit_audio() {
-  alDeleteBuffers(16, audio.note_buffers);
+  alDeleteBuffers(pixel_count, audio.note_buffers);
+  delete[] audio.note_buffers;
   alDeleteSources(1, &audio.source);
   alcDestroyContext(audio.ctx);
   alcCloseDevice(audio.device);
